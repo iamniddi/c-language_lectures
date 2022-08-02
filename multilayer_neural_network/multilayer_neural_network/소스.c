@@ -2,16 +2,16 @@
 #include <stdlib.h> 
 #include <time.h>
 
-#define DEPTH 3
-#define ROW 5
-#define COL 6
+#define DEPTH 3     //뉴런의 층 갯수(깊이)
+#define ROW 5       //input(output)의 갯수
+#define COL 6       //ROW값 +1 
 
 double*** weight;
 double** gradient;
 double** input;
 double** sigma;
 
-double outputTarget[COL] = { 1, 3, 3, 3, 3, 3 }; //outputTarget[0]은 공란
+double outputTarget[COL] = { 1, 3, 3, 3, 3, 3 }; //outputTarget[0]은 1또는 0으로 고정(bias위치)
 
 double alpha = -1 * 0.000125;
 double bias = 1;
@@ -147,7 +147,7 @@ int main()
 {
     double count = 1;
 
-    weight = malloc(sizeof(double**) * DEPTH);
+    weight = malloc(sizeof(double**) * DEPTH);                  //여기서부터
 
     for (int i = 0; i < DEPTH; i++)
     {
@@ -178,36 +178,26 @@ int main()
     for (int i = 0; i < COL; i++)
     {
         sigma[i] = malloc(sizeof(double) * (DEPTH + 1));
+    }                                                           //여기까지 동적할당 배열 생성 코드
+    
+    for (int a = 0; a < COL; a++) { //입력층 초기화
+        input[a][0] = 1;
     }
 
-    input[0][0] = 1;
-    input[1][0] = 1;
-    input[2][0] = 1;
-    input[3][0] = 1;
-    input[4][0] = 1;
-    input[5][0] = 1;
+    randomWeight();         //랜덤한 가중치 입력
+    feedForward();          //입력값으로 신경망 통과 후 output 출력
 
+    getGradient();//graident 계산
 
-    randomWeight();
-    feedForward();
-
-
-    for (int a = 0; a < 3; a++) {
-        printf("%f ", input[a][3]);
-    }
-    printf("\n");
-
-    getGradient();
-
-    while (count < 10) {
+    while (input[1][DEPTH]-3 * input[1][0]<0.0000001) {
         count = count + 0.1;
         input[0][0] = 1;
         printf("%f ", count);
-        for (int i = 1; i < 6; i++) {
+        for (int i = 1; i < COL; i++) {
             input[i][0] = count;
         }
 
-        for (int i = 1; i < 6; i++) {
+        for (int i = 1; i < COL; i++) {
             outputTarget[i] = count * 3;
         }
 
@@ -216,10 +206,10 @@ int main()
         for (int a = 0; a < COL; a++) {
             printf("%f ", input[a][DEPTH]);
         }
-        printf("\n");
+        printf("\n");           //while 문으로 1차함수 학습 (y=3x)
     }
 
-    scanf_s("%lf", &count);
+    scanf_s("%lf", &count);     //cmd에 인풋값 입력
     for (int i = 1; i < 6; i++) {
         input[i][0] = count;
     }
@@ -227,11 +217,11 @@ int main()
     feedForward();
 
     for (int a = 0; a < COL; a++) {
-        printf("%f ", input[a][DEPTH]);
+        printf("%f ", input[a][DEPTH]);     //학습한 신경망에 인풋값 통과 후 아웃풋 출력
     }
 
-
-    for (int i = 0; i < DEPTH; i++)
+    
+    for (int i = 0; i < DEPTH; i++)  //여기서부터 동적할당 메모리 해제 코드
     {
 
         for (int j = 0; j < COL; j++)
